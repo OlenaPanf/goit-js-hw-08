@@ -70,19 +70,39 @@ gallery.addEventListener('click', handleImageOpen);
 
 function handleImageOpen(event) {
   event.preventDefault();
-  if (event.currentTarget === event.target) return;
+  if (event.target.classList.contains('gallery-image')) {
+    const imageDataSource = event.target.dataset.source;
 
-  const imageDataSource = event.target.dataset.source;
+    const image = images.find(({ original }) => original === imageDataSource);
 
-  const image = images.find(({ original }) => original === imageDataSource);
+    console.log(image);
 
-  console.log(image);
+    const instance = basicLightbox.create(
+      `
+  <img src="${image.original}" width="800" height="600">`,
+      {
+        onShow: instance => {
+          document.addEventListener(
+            'keydown',
+            onEscKeyPress.bind(null, instance)
+          );
+        },
+        onClose: instance => {
+          document.removeEventListener(
+            'keydown',
+            onEscKeyPress.bind(null, instance)
+          );
+        },
+      }
+    );
+    function onEscKeyPress(instance, event) {
+      if (event.key === 'Escape') {
+        instance.close();
+      }
+    }
 
-  const instance = basicLightbox.create(`
-	<img src="${image.original}" width="800" height="600">;
-`);
-
-  instance.show();
+    instance.show();
+  }
 }
 
 function createMarkup(arr) {
